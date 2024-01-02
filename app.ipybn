@@ -1,71 +1,30 @@
 from flask import Flask, render_template, request
-from flask_restful import Resource, Api
-import pandas as pd
 import sqlite3
-import os
+
+
+def get_grades():
+    conn = sqlite3.connect('grades_database.db') # 这里的'database.db'为SQLite数据库文件名
+    cursor = conn.cursor()
+
+    query = "SELECT * FROM grades" # 'grades'为存放成绩的表格名称
+    cursor.execute(query)
+
+    result = []
+    for row in cursor.fetchall():
+        student_id = row[0]
+        name = row[1]
+        grade = row[2]
+
+        result.append({'student_id': student_id, 'name': name, 'grade': grade})
+
+    return result
 
 app = Flask(__name__)
-api = Api(app)
 
-
-# 连接到数据库
-conn = sqlite3.connect('grades_database.db', check_same_thread=False)
-cursor = conn.cursor()
-
-# 主页路由
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
-
-# 查询函数
-def query_score_by_name(name):
-    try:
-        name = name.lower()
-        cursor.execute("SELECT * FROM grades WHERE LOWER(name)=?", (name,))
-        result = cursor.fetchone()
-
-        if result:
-            print(f"{result[1]} 的成绩是 {result[2]}")
-            result_string = f"<div style='text-align: center;'>{result[1]} <br> 成绩: {result[2]} <br> 评价: {result[3]}</div>" if len(result) > 3 else f"找到 {result[1]} 的成绩，但未找到评价信息"
-            return result_string.replace('\n', '<br>')
-        else:
-            return f"找不到学生 {name} 的信息"
-
-    except sqlite3.Error as e:
-        return f"发生数据库错误: {e}"
-
-# 查询路由
-@app.route('/query', methods=['GET', 'POST'])
-def query():
-    if request.method == 'POST':
-        query_name = request.form['name']
-        result = query_score_by_name(query_name)
-        return render_template('index.html', result=result)
-
-    # 如果是 GET 请求，可以选择返回一个空白页面或其他信息
-    return render_template('index.html', result=None)
-
-
-# 定义一个 API 资源
-class GradeQueryResource(Resource):
-    def post(self):
-        try:
-            query_name = request.form.get('name')
-            result = query_score_by_name(query_name)
-            return {'result': result}
-
-        except Exception as e:
-            return {'error': str(e)}
-
-# 添加 API 路由
-api.add_resource(GradeQueryResource, '/api/query')
-
+    grades = get_grades()
+    return render_template('index.html', grades=grades)
 
 if __name__ == '__main__':
-    app.secret_key = '920909' # 配置安全密钥
-    # app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'default_secret_key')
-    # 使用 os.environ.get 来从环境变量中获取密钥：通过设置环境变量 FLASK_SECRET_KEY 来指定密钥；如未设置，将使用 'default_secret_key' 作为备用密钥
-    # app.run(port=5001)
-    # app.run # app.run(port=5001)  # 默认端口 http://127.0.0.1:5000/
-    # app.run(host='0.0.0.0', port=5001)  # 允许同一局域网内查询
-    app.run(host='0.0.0.0')  # 互联网
+    app.run()
