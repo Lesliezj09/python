@@ -13,7 +13,7 @@ conn = sqlite3.connect('grades_database.db', check_same_thread=False)
 cursor = conn.cursor()
 
 # 主页路由
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
@@ -67,6 +67,5 @@ if __name__ == '__main__':
     # 使用 os.environ.get 来从环境变量中获取密钥：通过设置环境变量 FLASK_SECRET_KEY 来指定密钥；如未设置，将使用 'default_secret_key' 作为备用密钥
     # app.run(port=5001)
     # app.run # app.run(port=5001)  # 默认端口 http://127.0.0.1:5000/
-    app.run(host='0.0.0.0', port=5001)  # 允许同一局域网内查询
-    # app.run(host='0.0.0.0')  # 互联网
-
+    # app.run(host='0.0.0.0', port=5001)  # 允许同一局域网内查询
+    app.run(host='0.0.0.0')  # 互联网
