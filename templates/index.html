@@ -2,48 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>成绩查询</title>
-    <style>
-        body {
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
     <h1>成绩查询</h1>
-    <form action="/query" method="post">
-        <label for="name">请输入学生姓名：</label>
-        <input type="text" id="name" name="name" required>
-        <button type="submit">查询</button>
-    </form>
-
-
-
-
-    {% if result %}
-        <div>
-            <p>{{ result|safe}}</p>
-        </div>
-    {% else %}
-    {% endif %}
-
-
-<!-- 这一脚本属于 端 JavaScript 代码:和python查询路由(后端 Flask 代码:)一样
-    <script>
-        function queryGrade() {
-            var name = document.getElementById('name').value;
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    document.getElementById('result').innerHTML = xhr.responseText;
-                }
-            };
-            xhr.open('POST', '/query', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.send('name=' + name);
-        }
-    </script>
--->
+    <table border="1">
+        <tr>
+            <th>学号</th>
+            <th>姓名</th>
+            <th>成绩</th>
+        </tr>
+        {% for grade in grades %}
+        <tr>
+            <td>{{ grade.student_id }}</td>
+            <td>{{ grade.name }}</td>
+            <td>{{ grade.grade }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
